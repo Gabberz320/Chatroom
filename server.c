@@ -1,10 +1,10 @@
 #include "csapp.h"
 
-//max size of the file and length of the string
+//max size of clients and length of the string
 #define MAX_CLIENT 10   
 #define MAXSIZE 1024 
 
-// Define struct to hold employee information from file
+// Define struct to hold client information
 typedef struct {
     int connfd; // file descriptor for the client connection
     char username[50]; // username of the client
@@ -63,7 +63,11 @@ void *handle_client(void *arg){
 
     //send welcome message
     char welcome_message[MAXSIZE] = "Welcome to the chatroom.\nPlease Remember to always be kind and curtious to other members.\n";
-    write(connfd, welcome_message, strlen(welcome_message));
+    n = write(connfd, welcome_message, strlen(welcome_message));
+    if (n < 0) {
+        fprintf(stderr, "failed to write\n");
+        exit(1);
+    }
 
     //revceive the username
     if((n = read(connfd,buffer, sizeof(buffer)) <= 0)){
@@ -112,10 +116,15 @@ void *handle_client(void *arg){
 
 }
 void broadcast(char *message, int sender_fd) {
+    size_t n;
     pthread_mutex_lock(&clients_mutex); //lock the mutex
     for (int i = 0; i < MAX_CLIENT; i++) {
         if (clients[i] != NULL && clients[i]->connfd != sender_fd) {
-            write(clients[i]->connfd, message, strlen(message)); //send the message to all clients except the sender
+            n = write(clients[i]->connfd, message, strlen(message)); //send the message to all clients except the sender
+            if (n < 0) {
+                fprintf(stderr, "failed to write\n");
+                exit(1);
+            }
         }
     }
     pthread_mutex_unlock(&clients_mutex); //unlock the mutex

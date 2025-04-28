@@ -17,12 +17,12 @@ int main(int argc, char *argv[])
     char *host, *port;
     
     char buffer[MAXLINE]; //MAXLINE = 8192 defined in csapp.h
-    size_t n
+    size_t n;
 
     if (argc != 3)
     {
         fprintf(stderr, "usage: %s <host> <port>\n", argv[0]);
-	   exit(0);
+    	exit(0);
     }
 
     host = argv[1];
@@ -52,6 +52,7 @@ int main(int argc, char *argv[])
         fprintf(stderr, "failed to send username\n");
         exit(1);
     }
+    
     //Parallel thread to receive messages
     pthread_t tid;
     pthread_create(&tid, NULL, receiver, NULL);
@@ -124,4 +125,3 @@ void sendMessage(const char *message)
         exit(1);
     }
 }
-// Function to receive message from the server
